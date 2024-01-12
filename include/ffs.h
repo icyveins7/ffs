@@ -51,7 +51,7 @@ namespace ffs
     };
 
 
-    /// @brief Shift an input complex vectopr by a normalized frequency and start phase.
+    /// @brief Shift an input complex vector by a normalized frequency and start phase.
     /// @tparam T Data type of real/imag sample.
     /// @tparam UNROLL Optimization parameter. Defaults to 1.
     /// @param vec Input complex vector. Will be overwritten with the shifted values.
