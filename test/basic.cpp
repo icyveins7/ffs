@@ -1,12 +1,15 @@
 #include "ffs.h"
 #include <vector>
 #include <cmath>
+#include <stdexcept>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/benchmark/catch_benchmark.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-template <typename T>
-void test_basic(size_t len, T freq, T phase, double threshold)
+
+template <typename T, typename U>
+void test_basic(size_t len, U freq, U phase, T threshold)
 {
     // Create some vectors
     std::vector<std::complex<T>> data(len);
@@ -20,7 +23,7 @@ void test_basic(size_t len, T freq, T phase, double threshold)
     }
 
     // Shift the data with our function
-    ffs::shiftVector<T, 4>(data, freq, phase);
+    ffs::shiftVector<T, U, 4>(data, freq, phase);
 
     // Check
     for (size_t i = 0; i < data.size(); i++)
@@ -30,19 +33,56 @@ void test_basic(size_t len, T freq, T phase, double threshold)
             std::sin(2 * M_PI * freq * i + phase)
         );
 
-        REQUIRE(std::abs((data[i].real() - correct.real()) / correct.real()) < threshold);
-        REQUIRE(std::abs((data[i].imag() - correct.imag()) / correct.imag()) < threshold);
+        REQUIRE_THAT(data[i].real(), Catch::Matchers::WithinRel(correct.real(), threshold));
+        REQUIRE_THAT(data[i].imag(), Catch::Matchers::WithinRel(correct.imag(), threshold));
     }
 }
 
+TEST_CASE("basic error check", "[basic], [errors]")
+{
+    SECTION("invalid freq range")
+    {
+        std::vector<std::complex<double>> data(10);
+
+        REQUIRE_THROWS(
+            ffs::shiftVector<double,double,4>(data, 1.0, 0.0)
+        );
+    }
+}
+
+// For threshold checks, we are okay as long as it's within relative 1e-9
 TEST_CASE("basic double", "[basic],[double]")
 {
     SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-9"){
-        test_basic<double>(100000, 1e-9, 0.1, 1e-9);
+        test_basic<double,double>(100000, 1e-9, 0.1, 1e-9);
     }
 
+    // This is to check non-multiple of UNROLL lengths
+    SECTION("len 1e5-1, freq 1e-9, phase 0.1, relative threshold 1e-9"){
+        test_basic<double,double>(99999, 1e-9, 0.1, 1e-9);
+    }
+
+    // For long lengths, relative threshold must be increased in order to pass
     SECTION("len 1e8, freq 1e-9, phase 0.1, relative threshold 1e-7"){
-        test_basic<double>(100000000, 1e-9, 0.1, 1e-7);
+        test_basic<double,double>(100000000, 1e-9, 0.1, 1e-7);
+    }
+
+}
+
+TEST_CASE("basic float", "[basic],[float]")
+{
+    SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-9"){
+        test_basic<float,double>(100000, 1e-9, 0.1, 1e-9);
+    }
+
+    // This is to check non-multiple of UNROLL lengths
+    SECTION("len 1e5-1, freq 1e-9, phase 0.1, relative threshold 1e-9"){
+        test_basic<float,double>(99999, 1e-9, 0.1, 1e-9);
+    }
+    
+    // For long lengths, relative threshold must be increased in order to pass
+    SECTION("len 1e8, freq 1e-9, phase 0.1, relative threshold 1e-5"){
+        test_basic<float,double>(100000000, 1e-9, 0.1, 1e-5);
     }
 
 }
@@ -54,10 +94,10 @@ BENCHMARKS
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 
-template <typename T, size_t UNROLL>
+template <typename T, typename U, size_t UNROLL>
 void benchmark_basic(std::vector<std::complex<T>>& data)
 {
-    ffs::shiftVector<T, UNROLL>(data, 1e-9, 0.1);
+    ffs::shiftVector<T, U, UNROLL>(data, 1e-9, 0.1);
 }
 
 template <typename T>
@@ -82,12 +122,12 @@ TEST_CASE("benchmark double", "[benchmark],[double]")
 
         BENCHMARK("ffs, UNROLL 1")
         {
-            return benchmark_basic<double, 1>(data);
+            return benchmark_basic<double, double, 1>(data);
         };
 
         BENCHMARK("ffs, UNROLL 4")
         {
-            return benchmark_basic<double, 4>(data);
+            return benchmark_basic<double, double, 4>(data);
         };
 
         BENCHMARK("naive")
@@ -97,3 +137,30 @@ TEST_CASE("benchmark double", "[benchmark],[double]")
     }
     
 }
+
+TEST_CASE("benchmark float", "[benchmark],[float]")
+{
+    SECTION("len 1e5")
+    {
+        std::vector<std::complex<float>> data(100000);
+        for (int i = 0; i < data.size(); i++)
+            data[i] = std::complex<float>(i+1, i+1);
+
+        BENCHMARK("ffs, UNROLL 1")
+        {
+            return benchmark_basic<float, double, 1>(data);
+        };
+
+        BENCHMARK("ffs, UNROLL 4")
+        {
+            return benchmark_basic<float, double, 4>(data);
+        };
+
+        BENCHMARK("naive")
+        {
+            return benchmark_naive<float>(data);
+        };
+    }
+    
+}
+

@@ -30,6 +30,12 @@ endif()
 find_package(Catch2 3 REQUIRED)
 include_directories(${Catch2_INCLUDE_DIRS})
 
+# Use bigger instruction sets
+if (MSVC)
+    message("For MSVC, using /arch:AVX2")
+    add_compile_definitions(/arch:AVX2)
+endif()
+
 # Add our include dir
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include/)
 
