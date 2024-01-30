@@ -71,12 +71,12 @@ TEST_CASE("basic double", "[basic],[double2double]")
 
 TEST_CASE("basic float with double steps", "[basic],[float2double]")
 {
-    SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-9"){
+    SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-8"){
         test_basic<float,double>(100000, 1e-9, 0.1, 1e-9);
     }
 
     // This is to check non-multiple of UNROLL lengths
-    SECTION("len 1e5-1, freq 1e-9, phase 0.1, relative threshold 1e-9"){
+    SECTION("len 1e5-1, freq 1e-9, phase 0.1, relative threshold 1e-8"){
         test_basic<float,double>(99999, 1e-9, 0.1, 1e-9);
     }
     

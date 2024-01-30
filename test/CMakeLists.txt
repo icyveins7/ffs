@@ -33,7 +33,7 @@ include_directories(${Catch2_INCLUDE_DIRS})
 # Use bigger instruction sets
 if (MSVC)
     message("For MSVC, using /arch:AVX2")
-    add_compile_definitions(/arch:AVX2)
+    add_compile_options(/arch:AVX2 /Fa /FA)
 endif()
 
 # Add our include dir
