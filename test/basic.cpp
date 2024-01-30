@@ -51,7 +51,7 @@ TEST_CASE("basic error check", "[basic], [errors]")
 }
 
 // For threshold checks, we are okay as long as it's within relative 1e-9
-TEST_CASE("basic double", "[basic],[double]")
+TEST_CASE("basic double", "[basic],[double2double]")
 {
     SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-9"){
         test_basic<double,double>(100000, 1e-9, 0.1, 1e-9);
@@ -69,7 +69,7 @@ TEST_CASE("basic double", "[basic],[double]")
 
 }
 
-TEST_CASE("basic float", "[basic],[float]")
+TEST_CASE("basic float with double steps", "[basic],[float2double]")
 {
     SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-9"){
         test_basic<float,double>(100000, 1e-9, 0.1, 1e-9);
@@ -86,6 +86,26 @@ TEST_CASE("basic float", "[basic],[float]")
     }
 
 }
+
+// TODO: determine what kind of normalized frequency is reasonable to use with floats
+// TEST_CASE("basic float with float steps", "[basic],[float2float]")
+// {
+//     SECTION("len 1e5, freq 1e-9, phase 0.1, relative threshold 1e-5"){
+//         test_basic<float,float>(100000, 1e-9, 0.1, 1e-5);
+//     }
+
+//     // This is to check non-multiple of UNROLL lengths
+//     SECTION("len 1e5-1, freq 1e-9, phase 0.1, relative threshold 1e-5"){
+//         test_basic<float,float>(99999, 1e-9, 0.1, 1e-5);
+//     }
+    
+//     // For long lengths, relative threshold must be increased in order to pass
+//     SECTION("len 1e8, freq 1e-9, phase 0.1, relative threshold 1e-1"){
+//         test_basic<float,float>(100000000, 1e-9, 0.1, 1e-1);
+//     }
+
+// }
+
 
 
 /*
