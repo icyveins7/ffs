@@ -4,7 +4,11 @@
 #include <vector>
 #include <stdexcept>
 
+#ifdef __APPLE__
+namespace ffsh
+#else
 namespace ffs
+#endif
 {
     /// @brief Shift an input complex array by a normalized frequency and start phase.
     /// @tparam T Data type of real/imag sample.
