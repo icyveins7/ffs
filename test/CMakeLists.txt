@@ -32,8 +32,8 @@ include_directories(${Catch2_INCLUDE_DIRS})
 
 # Use bigger instruction sets
 if (MSVC)
-    message("For MSVC, using /arch:AVX2")
-    add_compile_options(/arch:AVX2 /Fa /FA)
+    message("For MSVC, using /arch:AVX")
+    add_compile_options(/arch:AVX /Fa /FA)
 endif()
 
 # Add our include dir
@@ -43,6 +43,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include/)
 add_executable(basic basic.cpp)
 target_link_libraries(basic PUBLIC Catch2::Catch2WithMain)
 
+add_executable(avx_impl avx_impl.cpp)
+target_link_libraries(avx_impl PUBLIC Catch2::Catch2WithMain)
+
 include(CTest)
 include(Catch)
 catch_discover_tests(basic)
+catch_discover_tests(avx_impl)

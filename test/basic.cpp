@@ -1,4 +1,4 @@
-#include "ffs.h"
+#include "ffs_generic_impl.h"
 #include <vector>
 #include <cmath>
 #include <stdexcept>
