@@ -30,23 +30,31 @@ endif()
 find_package(Catch2 3 REQUIRED)
 include_directories(${Catch2_INCLUDE_DIRS})
 
-# Use bigger instruction sets
-if (MSVC)
-    message("For MSVC, using /arch:AVX")
-    add_compile_options(/arch:AVX /Fa /FA)
-endif()
-
 # Add our include dir
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include/)
 
-# Define test executable for vectors
-add_executable(basic basic.cpp)
-target_link_libraries(basic PUBLIC Catch2::Catch2WithMain)
+# Define test executable for generic implementation
+add_executable(basic_generic basic.cpp)
+target_link_libraries(basic_generic PUBLIC Catch2::Catch2WithMain)
 
+
+# Define test executables for AVX implementation
 add_executable(avx_impl avx_impl.cpp)
 target_link_libraries(avx_impl PUBLIC Catch2::Catch2WithMain)
+if (MSVC)
+    target_compile_options(avx_impl PUBLIC /arch:AVX /Fa /FA)
+endif()
+
+add_executable(basic_avx basic.cpp)
+target_link_libraries(basic_avx PUBLIC Catch2::Catch2WithMain)
+if (MSVC)
+    target_compile_options(basic_avx PUBLIC /arch:AVX /Fa /FA)
+endif()
+
+
 
 include(CTest)
 include(Catch)
-catch_discover_tests(basic)
+catch_discover_tests(basic_generic)
 catch_discover_tests(avx_impl)
+catch_discover_tests(basic_avx)

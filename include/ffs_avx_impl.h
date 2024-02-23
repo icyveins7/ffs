@@ -13,8 +13,6 @@
 #define RESTRICT __restrict__
 #endif
 
-
-
 #ifdef __APPLE__
 namespace ffsh
 #else
@@ -198,12 +196,17 @@ namespace ffs
         {
             // Multiply into array
             complexMulIntrinsic_2x2_64fc(
-                tones,
-                &array[i]
+                &tones[0],
+                &array[i+0]
+            );
+            complexMulIntrinsic_2x2_64fc(
+                &tones[2],
+                &array[i+2]
             );
 
             // Increment tones
-            complexMulIntrinsic_2xScalar(step, tones);
+            complexMulIntrinsic_2xScalar(step, &tones[0]);
+            complexMulIntrinsic_2xScalar(step, &tones[2]);
         }
 
         // Remaining loops
