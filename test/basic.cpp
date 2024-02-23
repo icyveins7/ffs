@@ -106,73 +106,101 @@ BENCHMARKS
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 
-// template <typename T, typename U, size_t UNROLL>
-// void benchmark_basic(std::vector<std::complex<T>>& data)
-// {
-//     ffs::shiftVector<T, U, UNROLL>(data, 1e-9, 0.1);
-// }
+template <typename T>
+void benchmark_basic(std::vector<std::complex<T>>& data)
+{
+    ffs::shiftVector<T>(data, 1e-9, 0.1);
+}
 
-// template <typename T>
-// void benchmark_naive(std::vector<std::complex<T>>& data)
-// {
-//     for (size_t i = 0; i < data.size(); i++)
-//     {
-//         data[i] = data[i] * std::complex<T>(
-//             std::cos(2 * M_PI * 1e-9 * i + 0.1),
-//             std::sin(2 * M_PI * 1e-9 * i + 0.1)
-//         );
-//     }
-// }
+template <typename T>
+void benchmark_naive(std::vector<std::complex<T>>& data)
+{
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = data[i] * std::complex<T>(
+            std::cos(2 * M_PI * 1e-9 * i + 0.1),
+            std::sin(2 * M_PI * 1e-9 * i + 0.1)
+        );
+    }
+}
 
-// TEST_CASE("benchmark double", "[benchmark],[double]")
-// {
-//     SECTION("len 1e5")
-//     {
-//         std::vector<std::complex<double>> data(100000);
-//         for (int i = 0; i < data.size(); i++)
-//             data[i] = std::complex<double>(i+1, i+1);
+TEST_CASE("benchmark double", "[benchmark],[double]")
+{
+    SECTION("len 1e5")
+    {
+        constexpr size_t len = 100000;
+        std::vector<std::complex<double>> data(len);
+        for (int i = 0; i < data.size(); i++)
+            data[i] = std::complex<double>(i+1, i+1);
 
-//         BENCHMARK("ffs, UNROLL 1")
-//         {
-//             return benchmark_basic<double, double, 1>(data);
-//         };
+        BENCHMARK("ffs")
+        {
+            return benchmark_basic<double>(data);
+        };
 
-//         BENCHMARK("ffs, UNROLL 4")
-//         {
-//             return benchmark_basic<double, double, 4>(data);
-//         };
+        BENCHMARK("naive")
+        {
+            return benchmark_naive<double>(data);
+        };
+    }
 
-//         BENCHMARK("naive")
-//         {
-//             return benchmark_naive<double>(data);
-//         };
-//     }
+    SECTION("len 1e6")
+    {
+        constexpr size_t len = 1000000;
+        std::vector<std::complex<double>> data(len);
+        for (int i = 0; i < data.size(); i++)
+            data[i] = std::complex<double>(i+1, i+1);
+
+        BENCHMARK("ffs")
+        {
+            return benchmark_basic<double>(data);
+        };
+
+        BENCHMARK("naive")
+        {
+            return benchmark_naive<double>(data);
+        };
+    }
     
-// }
+}
 
-// TEST_CASE("benchmark float", "[benchmark],[float]")
-// {
-//     SECTION("len 1e5")
-//     {
-//         std::vector<std::complex<float>> data(100000);
-//         for (int i = 0; i < data.size(); i++)
-//             data[i] = std::complex<float>(i+1, i+1);
+TEST_CASE("benchmark float", "[benchmark],[float]")
+{
+    SECTION("len 1e5")
+    {
+        constexpr size_t len = 100000;
+        std::vector<std::complex<float>> data(len);
+        for (int i = 0; i < data.size(); i++)
+            data[i] = std::complex<float>(i+1, i+1);
 
-//         BENCHMARK("ffs, UNROLL 1")
-//         {
-//             return benchmark_basic<float, double, 1>(data);
-//         };
+        BENCHMARK("ffs")
+        {
+            return benchmark_basic<float>(data);
+        };
 
-//         BENCHMARK("ffs, UNROLL 4")
-//         {
-//             return benchmark_basic<float, double, 4>(data);
-//         };
-
-//         BENCHMARK("naive")
-//         {
-//             return benchmark_naive<float>(data);
-//         };
-//     }
+        BENCHMARK("naive")
+        {
+            return benchmark_naive<float>(data);
+        };
+    }
     
-// }
+    SECTION("len 1e6")
+    {
+        constexpr size_t len = 1000000;
+        std::vector<std::complex<float>> data(len);
+        for (int i = 0; i < data.size(); i++)
+            data[i] = std::complex<float>(i+1, i+1);
+
+        BENCHMARK("ffs")
+        {
+            return benchmark_basic<float>(data);
+        };
+
+        BENCHMARK("naive")
+        {
+            return benchmark_naive<float>(data);
+        };
+    }
+    
+}
 
