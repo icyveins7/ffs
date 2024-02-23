@@ -127,7 +127,7 @@ namespace ffs
    
     
     template <>
-    void shiftArray(
+    inline void shiftArray(
         std::complex<float> *array,
         const size_t size,
         const double freq,
@@ -172,7 +172,7 @@ namespace ffs
     };
 
     template <>
-    void shiftArray(
+    inline void shiftArray(
         std::complex<double> *array,
         const size_t size,
         const double freq,
