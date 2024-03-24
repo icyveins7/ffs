@@ -4,6 +4,7 @@ project(ffs_tests)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Creates the compile_commands.json file so clangd can find things
 
 # Check for user-specified CMAKE_PREFIX_PATH, otherwise generate it from VCPKG_DIR environment variable
 if (NOT DEFINED CMAKE_PREFIX_PATH)

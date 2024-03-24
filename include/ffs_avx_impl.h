@@ -4,7 +4,6 @@
 #include <cmath>
 #include <complex>
 #include <vector>
-#include <stdexcept>
 #include <immintrin.h>
 
 #ifdef _MSC_VER // for MSVC
