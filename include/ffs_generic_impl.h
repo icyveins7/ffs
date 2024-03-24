@@ -4,7 +4,6 @@
 #include <cmath>
 #include <complex>
 #include <vector>
-#include <stdexcept>
 
 #ifdef __APPLE__
 namespace ffsh
