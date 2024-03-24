@@ -56,6 +56,7 @@ namespace ffs
         _mm256_storeu_ps(y, ymm2);
     }
 
+    /// @brief Performs z[i] *= x[i] for i = 0,1,2,3
     static inline void complexMulIntrinsic_4x4_32fc(
         const std::complex<float> * RESTRICT x,
         std::complex<float> * RESTRICT z
@@ -76,6 +77,7 @@ namespace ffs
         _mm256_storeu_ps(reinterpret_cast<float*>(z), ymm1);
     }
 
+    /// @brief Performs z[i] *= x[i] for i = 0,1
     static inline void complexMulIntrinsic_2x2_64fc(
         const std::complex<double> * RESTRICT x,
         std::complex<double> * RESTRICT z
@@ -137,8 +139,8 @@ namespace ffs
         const double freq,
         const double startPhase
     );
-   
-    
+
+
     template <>
     inline void shiftArray(
         std::complex<float> *array,
@@ -148,39 +150,50 @@ namespace ffs
     ){
         // Allocate array for initial tones
         std::complex<double> tones[4];
-        std::complex<float> tones_32f[4];
+
         // Initialize them
         for (size_t i = 0; i < 4; ++i)
+        {
             tones[i] = std::complex<double>(std::cos(startPhase + i*2*M_PI*freq), std::sin(startPhase + i*2*M_PI*freq));
-        
+        }
+
         // Compute the step
         std::complex<double> step(std::cos(2*M_PI*freq*4), std::sin(2*M_PI*freq*4));
+
+        // Allocate stack array for input
+        std::complex<double> input[4];
 
 
         // Main loop
         for (size_t i = 0; i < size-size%4; i += 4)
         {
-            // Cast the tones to float
-            doubleToFloatIntrinsic8(
-                reinterpret_cast<const double*>(tones),
-                reinterpret_cast<float*>(tones_32f)
+            // Cast the input to double
+            floatToDoubleIntrinsic8(
+                reinterpret_cast<float*>(&array[i]), 
+                reinterpret_cast<double*>(input)
             );
 
-            // Multiply into array
-            complexMulIntrinsic_4x4_32fc(
-                tones_32f,
-                &array[i]
+            // Muliply with double type tones
+            complexMulIntrinsic_2x2_64fc(&tones[0], &input[0]);
+            complexMulIntrinsic_2x2_64fc(&tones[2], &input[2]);
+
+            // Load back to our input
+            doubleToFloatIntrinsic8(
+                reinterpret_cast<double*>(input), 
+                reinterpret_cast<float*>(&array[i])
             );
 
             // Increment tones
-            complexMulIntrinsic_2xScalar(step, tones);
+            complexMulIntrinsic_2xScalar(step, &tones[0]);
+            complexMulIntrinsic_2xScalar(step, &tones[2]);
         }
 
         // Remainder loop
         for (size_t i = 0; i < size % 4; ++i)
         {
-            tones_32f[i] = static_cast<std::complex<float>>(tones[i]);
-            array[size-size%4 + i] = array[size-size%4 + i] * tones_32f[i];
+            array[size-size%4 + i] = static_cast<std::complex<float>>(
+                static_cast<std::complex<double>>(array[size-size%4 + i]) * tones[i]
+            );
         }
     };
 

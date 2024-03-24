@@ -6,14 +6,8 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#ifdef __AVX__
-#define SINGLE_REL_THRESHOLD_SHORT 1e-3
-#define SINGLE_REL_THRESHOLD_LONG 0.5
-#else
-#define SINGLE_REL_THRESHOLD_SHORT 1e-6
-#define SINGLE_REL_THRESHOLD_LONG 1e-5
-#endif
-
+#define SINGLE_REL_THRESHOLD_SHORT 1e-6 // for length 1e5
+#define SINGLE_REL_THRESHOLD_LONG 1e-5 // for length 1e8
 
 template <typename T>
 void test_basic(size_t len, double freq, double phase, double threshold)
@@ -47,7 +41,7 @@ void test_basic(size_t len, double freq, double phase, double threshold)
 
         if (std::abs(dreal - correct.real()) / correct.real() > threshold && !printed)
         {
-            printf("real: %f vs %f\n", dreal, correct.real());
+            printf("real[%zd]: %f(computed) vs %f(check)\n", i, dreal, correct.real());
             printed = true; // just show once
         }
 
