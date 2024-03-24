@@ -24,9 +24,23 @@ namespace ffs
     Basically MSVC just generally sucks at autovectorising, regardless of what we do.
     Hence we have to handroll the intrinsics.
     This is generally done by just copying and reverse-translating the assembly output
-    from GCC's compilation with -O3 -ffast-math -mavx. 
+    from GCC's compilation with -O3 -ffast-math -march=x86-64-v3. 
     */
 
+
+    static inline void floatToDoubleIntrinsic8(
+        const float * RESTRICT x, double * RESTRICT y
+    ){
+        __m256 ymm0 = _mm256_loadu_ps(x);
+        __m128 xmm0 = _mm256_extractf128_ps(ymm0, 0);
+        __m256d ymm1 = _mm256_cvtps_pd(xmm0);
+
+        __m128 xmm1 = _mm256_extractf128_ps(ymm0, 1);
+        __m256d ymm2 = _mm256_cvtps_pd(xmm1);
+
+        _mm256_storeu_pd(y, ymm1);
+        _mm256_storeu_pd(y+4, ymm2);
+    }
 
     static inline void doubleToFloatIntrinsic8(
         const double * RESTRICT x, float * RESTRICT y
