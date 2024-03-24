@@ -47,6 +47,42 @@ TEST_CASE("double to float cast", "[avx], [cast]")
 }
 
 
+////////////////////////////////////////////////////////////
+TEST_CASE("float to double cast", "[avx], [cast]")
+{
+    SECTION("real array[8]")
+    {
+        float x[8] = {-4.0f, -3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f};
+        double y[8];
+
+        floatToDoubleIntrinsic8(x, y);
+
+        for (int i = 0; i < 8; ++i)
+        {
+            REQUIRE(y[i] == static_cast<double>(x[i]));
+        }
+    }
+
+    SECTION("std::complex array[4]")
+    {
+        std::complex<float> x[4] = {
+            std::complex<float>(-4.0f, -3.0f),
+            std::complex<float>(-2.0f, -1.0f),
+            std::complex<float>(0.0f, 1.0f),
+            std::complex<float>(2.0f, 3.0f)
+        };
+        std::complex<double> y[4];
+
+        floatToDoubleIntrinsic8(reinterpret_cast<float*>(x), reinterpret_cast<double*>(y));
+
+        for (int i = 0; i < 4; i++)
+        {
+            REQUIRE(y[i].real() == static_cast<double>(x[i].real()));
+            REQUIRE(y[i].imag() == static_cast<double>(x[i].imag()));
+        }
+    }
+}
+
 
 ////////////////////////////////////////////////////////////
 TEST_CASE("complex multiply", "[avx], [multiply], [vecXvec]")
